@@ -33,6 +33,8 @@
       renderer;
       width;
       height;
+      firstText;
+      secondText;
       cube;
       plane;
       zeppelin;
@@ -57,8 +59,67 @@
         this.width = this.sceneDivTarget.offsetWidth;
         this.createScene();
         this.createAubergineZeppelinPng();
-        this.createText();
+        //this.createText();
+        this.CreateFirstText()
+        .then(() => self.MoveFirstText());
+
+        setTimeout(() => {
+          this.CreateSecondText()
+          .then(() => self.MoveSecondText());
+        }, "1000");
         //this.createPlaneWithImage();
+      }
+
+      CreateFirstText(){
+        var self = this;
+        return new Promise(function(final_resolve, final_reject){
+          self.createTextObject("Bist du bereit?")
+          .then((textObject)=>{
+            self.firstText = textObject;
+            self.firstText.position.y = 1;
+            self.firstText.position.x = 2;
+            final_resolve(textObject);
+          })
+
+        }) // end promise
+      }
+
+      CreateSecondText(){
+        var self = this;
+        return new Promise(function(final_resolve, final_reject){
+          self.createTextObject("Fur den Veganuary?")
+          .then((textObject)=>{
+            self.secondText = textObject;
+            self.secondText.position.x = 2;
+            self.secondText.position.z = 2;
+            self.secondText.position.y = -0.5;
+
+
+            final_resolve(textObject);
+          })
+
+        }) // end promise
+      }
+
+      MoveFirstText(){
+        var self = this;
+        const intervalID = setInterval(myCallback, 50, "Parameter 1", "Parameter 2");
+        console.log(self.firstText.position);
+          function myCallback(a, b) {
+            // Your code here
+            // Parameters are purely optional.
+            self.firstText.position.x -= 0.04;
+          }
+      }
+
+      MoveSecondText(){
+        var self = this;
+        const intervalID = setInterval(myCallback, 50, "Parameter 1", "Parameter 2");
+          function myCallback(a, b) {
+            // Your code here
+            // Parameters are purely optional.
+            self.secondText.position.x -= 0.04;
+          }
       }
 
       animate(){
@@ -111,8 +172,42 @@
         var light = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
         light.position.z = 5;
         this.scene.add( light );
-
+;
         this.animate();
+      }
+
+      createTextObject(text){
+        var self = this;
+
+        return new Promise(function(final_resolve, final_reject){
+          const fontLoader = new FontLoader();
+
+          fontLoader.load( "https://unpkg.com/three@0.150.1/examples/fonts/helvetiker_regular.typeface.json", function ( font ) {
+
+            var textGeometry = new TextGeometry( text, {
+              font: font,
+              size: 0.8,
+              height: 0.1,
+              curveSegments: 1,
+
+              bevelThickness: 0.01,
+              bevelSize: 0.01,
+              bevelEnabled: true
+            } );
+            var materials = [
+              new THREE.MeshBasicMaterial( { color: 0xFFFFFF} ), // front
+              new THREE.MeshBasicMaterial( { color: 0xFFFFFF} ) // side
+              ];
+            var text_mesh = new THREE.Mesh( textGeometry, materials );
+            text_mesh.position.x = 0;
+            text_mesh.position.y = 0;
+            text_mesh.position.z = 0;
+            self.scene.add(text_mesh);
+            final_resolve(text_mesh);
+          } );
+
+        }) // end promise
+
       }
 
       createText(){
@@ -165,8 +260,9 @@
             // Your code here
             // Parameters are purely optional.
 
-            self.zeppelin.position.x += 0.001;
-            self.zeppelin.position.z += 0.0015;
+            self.zeppelin.position.x += 0.0005;
+            self.zeppelin.position.z += 0.005;
+            self.zeppelin.rotation.y -= 0.0005;
           }
       }
 
